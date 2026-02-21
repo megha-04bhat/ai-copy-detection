@@ -3,37 +3,74 @@ import re
 
 def convert_text_to_json(extracted_text: str):
     """
-    Converts question paper text into structured JSON.
-    Handles:
-    - Q1. ...
-    - Q2. ...
-    - Multi-line questions
+    Extracts questions using structural heuristics
+    instead of strict regex patterns.
+    Works for unknown numbering formats.
     """
 
-    # Normalize whitespace
-    text = re.sub(r"\s+", " ", extracted_text)
+    # Normalize line endings
+    text = extracted_text.replace("\r", "").strip()
 
-    # Pattern to match Q1. Q2. Q10. etc.
-    pattern = r"(Q\d+\.)"
-
-    parts = re.split(pattern, text)
+    # Split by newline first
+    lines = text.split("\n")
 
     questions = []
+    current_question = []
+    question_number = 1
 
-    # re.split keeps delimiters, so we process pairs
-    for i in range(1, len(parts), 2):
-        question_label = parts[i]         # e.g., "Q1."
-        question_body = parts[i + 1].strip()
+    def looks_like_new_question(line: str):
+        """
+        Detect if line likely starts a new question.
+        Heuristic-based detection.
+        """
 
-        # Extract question number
-        number_match = re.search(r"\d+", question_label)
-        if number_match:
-            question_number = int(number_match.group())
+        line = line.strip()
 
-            questions.append({
-                "question_number": question_number,
-                "question_text": question_body.strip()
-            })
+        if not line:
+            return False
+
+        # Case 1: Starts with number (1, 2, 10, etc.)
+        if re.match(r"^\d+", line):
+            return True
+
+        # Case 2: Starts with uppercase letter + period
+        if re.match(r"^[A-Z]\.", line):
+            return True
+
+        # Case 3: Contains question mark and is standalone
+        if "?" in line and len(line) < 200:
+            return True
+
+        # Case 4: Starts with Q/q followed by anything
+        if line.lower().startswith("q"):
+            return True
+
+        return False
+
+    for line in lines:
+        line = line.strip()
+
+        if not line:
+            continue
+
+        if looks_like_new_question(line):
+            # Save previous question
+            if current_question:
+                questions.append({
+                    "question_number": question_number,
+                    "question_text": " ".join(current_question).strip()
+                })
+                question_number += 1
+                current_question = []
+
+        current_question.append(line)
+
+    # Add last question
+    if current_question:
+        questions.append({
+            "question_number": question_number,
+            "question_text": " ".join(current_question).strip()
+        })
 
     return {
         "questions": questions

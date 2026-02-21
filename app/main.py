@@ -1,19 +1,9 @@
-# from fastapi import FastAPI, UploadFile, File
-# from app.utils.text_extractor import extract_text
-
-# app = FastAPI()
-
 # @app.post("/extract")
 # async def extract(file: UploadFile = File(...)):
 #     file_bytes = await file.read()
 #     text = extract_text(file_bytes, file.filename)
 #     return {"extracted_text": text}
 
-# from fastapi import FastAPI, UploadFile, File
-# from app.utils.text_extractor import extract_text
-# from app.watermark.detect import detect_watermark
-
-# app=FastAPI()
 
 # @app.post("/check_watermark")
 # async def check_watermark(file: UploadFile = File(...)):
@@ -40,11 +30,9 @@ from contextlib import asynccontextmanager
 from app.utils.text_extractor import extract_text
 from app.utils.pdf_to_json import convert_text_to_json
 from app.services.decision_engine import evaluate_document
+from app.watermark.detect import detect_watermark
 import app.similarity.faiss_index as faiss_store
-# from app.similarity.faiss_index import (
-#     initialize_index,
-#     add_question,
-# )
+
 
 # ---------------------------------------------------
 # SAMPLE QUESTIONS (Only added if index empty)
@@ -96,7 +84,11 @@ def home():
 async def pdf_to_json(file: UploadFile = File(...)):
     file_bytes = await file.read()
     extracted_text = extract_text(file_bytes, file.filename)
-    structured_json = convert_text_to_json(extracted_text)
+
+    # Remove watermark before converting
+    _, _, cleaned_text = detect_watermark(extracted_text)
+
+    structured_json = convert_text_to_json(cleaned_text)
     return structured_json
 
 
@@ -110,12 +102,31 @@ async def check_copy(file: UploadFile = File(...)):
     # Step 1: Extract raw text
     extracted_text = extract_text(file_bytes, file.filename)
 
-    # Step 2: Convert to structured JSON
-    structured = convert_text_to_json(extracted_text)
+    # Step 2: Detect and remove watermark
+    has_watermark, watermark, cleaned_text = detect_watermark(extracted_text)
+
+    # 🔥 If watermark exists → immediate EXACT_COPY
+    if has_watermark:
+        return {
+            "total_questions": 1,
+            "results": [
+                {
+                    "question_number": 1,
+                    "analysis": {
+                        "status": "EXACT_COPY",
+                        "watermark": watermark
+                    }
+                }
+            ]
+        }
+
+
+    # Step 3: Convert to structured JSON
+    structured = convert_text_to_json(cleaned_text)
 
     results = []
 
-    # Step 3: Evaluate each question separately
+    # Step 4: Evaluate each question separately
     for question in structured["questions"]:
         analysis = evaluate_document(question["question_text"])
 
