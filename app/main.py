@@ -32,35 +32,48 @@ from app.utils.pdf_to_json import convert_text_to_json
 from app.services.decision_engine import evaluate_document
 from app.watermark.detect import detect_watermark
 import app.similarity.faiss_index as faiss_store
+from app.database.questions import get_all_questions
+from app.similarity.faiss_index import add_question
 
 
 # ---------------------------------------------------
 # SAMPLE QUESTIONS (Only added if index empty)
 # ---------------------------------------------------
-DATABASE_QUESTIONS = [
-    "Explain Newton's First Law of Motion in detail.",
-    "Define Ohm's Law.",
-    "What is Artificial Intelligence?"
-]
+# DATABASE_QUESTIONS = [
+#     "Explain Newton's First Law of Motion in detail.",
+#     "Define Ohm's Law.",
+#     "What is Artificial Intelligence?"
+# ]
 
 # ---------------------------------------------------
 # LIFESPAN HANDLER (Modern FastAPI)
 # ---------------------------------------------------
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    print("Initializing FAISS index...")
-    faiss_store.initialize_index()
+    # print("Initializing FAISS index...")
+    # faiss_store.initialize_index()
 
-    print("Index total after init:", faiss_store.index.ntotal)
+    # print("Index total after init:", faiss_store.index.ntotal)
 
-    if faiss_store.index.ntotal == 0:
-        print("Adding sample questions...")
-        for question in DATABASE_QUESTIONS:
-            faiss_store.add_question(question)
+    # if faiss_store.index.ntotal == 0:
+    #     print("Adding sample questions...")
+    #     for question in DATABASE_QUESTIONS:
+    #         faiss_store.add_question(question)
 
-    print("System ready.")
+    # print("System ready.")
+    # yield
+    # print("Shutting down AI Copy Detection Service...")
+
+    print("Loading questions from PostgreSQL...")
+
+    rows = get_all_questions()
+
+    for question_id, question_text in rows:
+        add_question(question_id, question_text)
+
+    print("FAISS index loaded successfully.")
+
     yield
-    print("Shutting down AI Copy Detection Service...")
 
 
 # ---------------------------------------------------
