@@ -49,18 +49,18 @@ This module is part of the **Academic & Career Assistance Platform** and is resp
 ### 📌 Document Upload Flow
 
 
-User uploads document
-↓
-Text extraction (PDF/DOCX/OCR)
-↓
-Watermark detection
-→ If found → EXACT_COPY
-↓
-FAISS similarity search
-↓
-Threshold classification
-↓
-Return result
+    User uploads document
+    ↓
+    Text extraction (PDF/DOCX/OCR)
+    ↓
+    Watermark detection
+    → If found → EXACT_COPY
+    ↓
+    FAISS similarity search
+    ↓
+    Threshold classification
+    ↓
+    Return result
 
 
 ---
