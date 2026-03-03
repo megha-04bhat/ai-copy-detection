@@ -32,18 +32,18 @@ This module is part of the **Academic & Career Assistance Platform** and is resp
 ---
 
 ## 🏗 Project Structure
-copy-detection/
-├─ app/
-│ ├─ database/
-│ ├─ services/
-│ ├─ similarity/
-│ ├─ utils/
-│ └─ watermark/
-├─ data/
-├─ tests/
-├─ .env
-├─ requirements.txt
-└─ README.md
+    copy-detection/
+    ├─ app/
+    │ ├─ database/
+    │ ├─ services/
+    │ ├─ similarity/
+    │ ├─ utils/
+    │ └─ watermark/
+    ├─ data/
+    ├─ tests/
+    ├─ .env
+    ├─ requirements.txt
+    └─ README.md
 ---
 
 ### 📌 Document Upload Flow
