@@ -70,8 +70,8 @@ Return result
 | Condition | Result |
 |-----------|--------|
 | Watermark found | EXACT_COPY |
-| Similarity ≥ 0.90 | HIGH_CONFIDENCE_COPY |
-| Similarity ≥ 0.85 | MODIFIED_COPY |
+| Similarity ≥ 0.85 | HIGH_CONFIDENCE_COPY |
+| Similarity ≥ 0.65 | MODIFIED_COPY |
 | Otherwise | NEW_QUESTION |
 
 ---
