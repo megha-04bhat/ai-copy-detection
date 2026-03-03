@@ -51,7 +51,7 @@ This module is part of the **Academic & Career Assistance Platform** and is resp
 
     User uploads document
     ↓
-    Text extraction (PDF/DOCX/OCR)
+    Text extraction (PDF/DOCX)
     ↓
     Watermark detection
     → If found → EXACT_COPY
