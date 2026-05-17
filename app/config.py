@@ -33,3 +33,5 @@ DEBUG = os.getenv("DEBUG", "True") == "True"
 # =========================
 TESSERACT_PATH = os.getenv("TESSERACT_PATH")
 POPPLER_PATH = os.getenv("POPPLER_PATH")
+
+PNG_FILE = os.getenv("logo")

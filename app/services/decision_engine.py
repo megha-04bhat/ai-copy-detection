@@ -56,7 +56,7 @@ def evaluate_document(extracted_text: str):
     classification = classify_similarity(score)
 
     return {
-        "status": classification,
+        "classification": classification,
         "similarity_score": score,
         "matched_question": question_text
     }

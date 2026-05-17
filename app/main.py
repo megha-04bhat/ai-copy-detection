@@ -24,8 +24,12 @@
 #         "status": "NO_WATERMARK"
 #     }
 
+
+# pyrefly: ignore [missing-import]
 from fastapi import FastAPI, UploadFile, File
 from contextlib import asynccontextmanager
+# pyrefly: ignore [missing-import]
+from fastapi.middleware.cors import CORSMiddleware
 
 from app.utils.text_extractor import extract_text
 from app.utils.pdf_to_json import convert_text_to_json
@@ -34,6 +38,13 @@ from app.watermark.detect import detect_watermark
 import app.similarity.faiss_index as faiss_store
 from app.database.questions import get_all_questions
 from app.similarity.faiss_index import add_question
+
+origins = [
+    "http://localhost:5173",
+    "http://localhost:3000",
+    "http://localhost:8000"
+]
+
 
 
 # ---------------------------------------------------
@@ -80,6 +91,13 @@ async def lifespan(app: FastAPI):
 # CREATE FASTAPI APP
 # ---------------------------------------------------
 app = FastAPI(lifespan=lifespan)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 # ---------------------------------------------------
@@ -121,10 +139,10 @@ async def check_copy(file: UploadFile = File(...)):
     # 🔥 If watermark exists → immediate EXACT_COPY
     if has_watermark:
         return {
-            "total_questions": 1,
+            # "total_questions": 1,
             "results": [
                 {
-                    "question_number": 1,
+                    # "question_number": 1,
                     "analysis": {
                         "status": "EXACT_COPY",
                         "watermark": watermark
